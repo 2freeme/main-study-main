@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bill.web.dao.CoinRecordDao">
+
+    <resultMap id="BaseResultMap" type="com.bill.web.entity.CoinRecord">
+        <!--@Table coin_record-->
+        <result property="id" column="id" jdbcType="NUMERIC"/>
+        <result property="coinName" column="coin_name" jdbcType="VARCHAR"/>
+        <result property="coinType" column="coin_type" jdbcType="VARCHAR"/>
+        <result property="sourceUrl" column="source_url" jdbcType="VARCHAR"/>
+        <result property="contractAddress" column="contract_address" jdbcType="VARCHAR"/>
+        <result property="walletAddress" column="wallet_address" jdbcType="VARCHAR"/>
+        <result property="wallectType" column="wallect_type" jdbcType="VARCHAR"/>
+        <result property="checkUrl" column="check_url" jdbcType="VARCHAR"/>
+        <result property="cost" column="cost" jdbcType="NUMERIC"/>
+        <result property="costNote" column="cost_note" jdbcType="VARCHAR"/>
+        <result property="note" column="note" jdbcType="VARCHAR"/>
+        <result property="done" column="done" jdbcType="VARCHAR"/>
+        <result property="endDate" column="end_date" jdbcType="OTHER"/>
+        <result property="over" column="over" jdbcType="VARCHAR"/>
+        <result property="createTime" column="CREATE_TIME" jdbcType="TIMESTAMP"/>
+        <result property="modifyDate" column="MODIFY_DATE" jdbcType="TIMESTAMP"/>
+        <result property="refLink" column="ref_link" jdbcType="VARCHAR"/>
+        <result property="message" column="message" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="BaseResultMap">
+        select
+          id, coin_name, coin_type, source_url, contract_address, wallet_address, wallect_type, check_url, cost, cost_note, note, done, end_date, over, CREATE_TIME, MODIFY_DATE, ref_link, message
+        from bi.coin_record
+        where  id= #{id}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="BaseResultMap">
+        select
+          id, coin_name, coin_type, source_url, contract_address, wallet_address, wallect_type, check_url, cost, cost_note, note, done, end_date, over, CREATE_TIME, MODIFY_DATE, ref_link, message
+        from bi.coin_record
+        limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="BaseResultMap">
+        select
+          id, coin_name, coin_type, source_url, contract_address, wallet_address, wallect_type, check_url, cost, cost_note, note, done, end_date, over, CREATE_TIME, MODIFY_DATE, ref_link, message
+        from bi.coin_record
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="coinName != null and coinName != ''">
+                and coin_name = #{coinName}
+            </if>
+            <if test="coinType != null and coinType != ''">
+                and coin_type = #{coinType}
+            </if>
+            <if test="sourceUrl != null and sourceUrl != ''">
+                and source_url = #{sourceUrl}
+            </if>
+            <if test="contractAddress != null and contractAddress != ''">
+                and contract_address = #{contractAddress}
+            </if>
+            <if test="walletAddress != null and walletAddress != ''">
+                and wallet_address = #{walletAddress}
+            </if>
+            <if test="wallectType != null and wallectType != ''">
+                and wallect_type = #{wallectType}
+            </if>
+            <if test="checkUrl != null and checkUrl != ''">
+                and check_url = #{checkUrl}
+            </if>
+            <if test="cost != null">
+                and cost = #{cost}
+            </if>
+            <if test="costNote != null and costNote != ''">
+                and cost_note = #{costNote}
+            </if>
+            <if test="note != null and note != ''">
+                and note = #{note}
+            </if>
+            <if test="done != null and done != ''">
+                and done = #{done}
+            </if>
+            <if test="endDate != null">
+                and end_date = #{endDate}
+            </if>
+            <if test="over != null and over != ''">
+                and over = #{over}
+            </if>
+            <if test="createTime != null">
+                and CREATE_TIME = #{createTime}
+            </if>
+            <if test="modifyDate != null">
+                and MODIFY_DATE = #{modifyDate}
+            </if>
+            <if test="refLink != null and refLink != ''">
+                and ref_link = #{refLink}
+            </if>
+            <if test="message != null and message != ''">
+                and message = #{message}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="" useGeneratedKeys="true">
+        insert into bi.coin_record(id, coin_name, coin_type, source_url, contract_address, wallet_address, wallect_type, check_url, cost, cost_note, note, done, end_date, over, CREATE_TIME, MODIFY_DATE, ref_link, message)
+        values (#{id}, #{coinName}, #{coinType}, #{sourceUrl}, #{contractAddress}, #{walletAddress}, #{wallectType}, #{checkUrl}, #{cost}, #{costNote}, #{note}, #{done}, #{endDate}, #{over}, #{createTime}, #{modifyDate}, #{refLink}, #{message})
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update bi.coin_record
+        <set>
+            <if test="id != null">
+                id = #{id},
+            </if>
+            <if test="coinName != null and coinName != ''">
+                coin_name = #{coinName},
+            </if>
+            <if test="coinType != null and coinType != ''">
+                coin_type = #{coinType},
+            </if>
+            <if test="sourceUrl != null and sourceUrl != ''">
+                source_url = #{sourceUrl},
+            </if>
+            <if test="contractAddress != null and contractAddress != ''">
+                contract_address = #{contractAddress},
+            </if>
+            <if test="walletAddress != null and walletAddress != ''">
+                wallet_address = #{walletAddress},
+            </if>
+            <if test="wallectType != null and wallectType != ''">
+                wallect_type = #{wallectType},
+            </if>
+            <if test="checkUrl != null and checkUrl != ''">
+                check_url = #{checkUrl},
+            </if>
+            <if test="cost != null">
+                cost = #{cost},
+            </if>
+            <if test="costNote != null and costNote != ''">
+                cost_note = #{costNote},
+            </if>
+            <if test="note != null and note != ''">
+                note = #{note},
+            </if>
+            <if test="done != null and done != ''">
+                done = #{done},
+            </if>
+            <if test="endDate != null">
+                end_date = #{endDate},
+            </if>
+            <if test="over != null and over != ''">
+                over = #{over},
+            </if>
+            <if test="createTime != null">
+                CREATE_TIME = #{createTime},
+            </if>
+            <if test="modifyDate != null">
+                MODIFY_DATE = #{modifyDate},
+            </if>
+            <if test="refLink != null and refLink != ''">
+                ref_link = #{refLink},
+            </if>
+            <if test="message != null and message != ''">
+                message = #{message},
+            </if>
+        </set>
+        where  id= #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from bi.coin_record where id = #{id}
+    </delete>
+
+</mapper>
