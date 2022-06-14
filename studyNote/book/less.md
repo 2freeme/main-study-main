@@ -70,7 +70,7 @@ typora-root-url: image
 - mq的延迟的机制
 
   - RocketMQ提供了延时消息类型，简单来说就是生产者在发送消息的时候指定一个延时时间，当到达延时时间之后消息才能够被投送到消费者。
-  - 
+  - 这里就是将放到一个 delay的队列中，然后task去轮询查结果
 
 - mq的producer
 
@@ -251,17 +251,19 @@ typora-root-url: image
     - 为了在整体资源不够的时候，适当放弃部分服务，将主要的资源投放到核心服务中，待渡过难关之后，再重启已关闭的服务，保证了系统核心服务的稳定。当服务停掉后，自动进入fallback替换主方法。
 
 
-    - 用fallback方法代替主方法执行并返回结果，对失败的服务进行降级。当调用服务失败次数在一段时间内超过了断路器的阈值时，断路器将打开，不再进行真正的调用，而是快速失败，直接执行fallback逻辑。服务降级保护了服务调用者的逻辑。
+~~~java
+- 用fallback方法代替主方法执行并返回结果，对失败的服务进行降级。当调用服务失败次数在一段时间内超过了断路器的阈值时，断路器将打开，不再进行真正的调用，而是快速失败，直接执行fallback逻辑。服务降级保护了服务调用者的逻辑。
 
-    - ```
-      熔断和降级：
-      共同点：
-      	1、为了防止系统崩溃，保证主要功能的可用性和可靠性。
-      	2、用户体验到某些功能不能用。
-      不同点：
-      	1、熔断由下级故障触发，主动惹祸。
-      	2、降级由调用方从负荷角度触发，无辜被抛弃。
-      ```
+- ```
+  熔断和降级：
+  共同点：
+  	1、为了防止系统崩溃，保证主要功能的可用性和可靠性。
+  	2、用户体验到某些功能不能用。
+  不同点：
+  	1、熔断由下级故障触发，主动惹祸。
+  	2、降级由调用方从负荷角度触发，无辜被抛弃。
+  ```
+~~~
 
 - #### **Hystrix**
 
@@ -424,7 +426,7 @@ BASE 是 Basically Available(基本可用)、Soft state(软状态)和 Eventually
 
 ​		https://blog.csdn.net/yanliguoyifang/article/details/80964237![类的生命周期](/类的生命周期.jpg)
 
-​		 其中，验证——准备——解析 称为连接阶段，除了解析外，其他阶段是顺序发生的，而解析可以与这些阶段交叉进行，因为Java支持动态绑定（晚期绑定），需要运行时才能确定具体类型；在使用阶段实例化对象。
+​		 其中，验证——准备——解析 称为连接阶段，除了解析外，其他阶段是顺序发生的，而解析可以与这些阶段交叉进行，因为	J	ava支持动态绑定（晚期绑定），需要运行时才能确定具体类型；在使用阶段实例化对象。
 
 - 类的初始化触发
   - 类的加载机制没有明确的触发条件，但是有5种情况下必须对类进行初始化，那么 加载——验证——准备 就必须在此之前完成了。
@@ -435,5 +437,33 @@ BASE 是 Basically Available(基本可用)、Soft state(软状态)和 Eventually
     - 使用jdk1.7的动态语言支持时，如果一个java.lang.invoke.MethodHandle实例最后的解析结果REF_getStatic、REF_putStatic、RE_invokeStatic的方法句柄，并且这个方法句柄对应的类没有进行初始化，则需要先触发其初始化
   - 注意，**有且只有五种情况必须对类进行初始化，这**五种情况被称为“主动引用”，除了这五种情况，所有其他的类引用方式都不会触发类初始化，被称为“被动引用”
 
+### 跳跃链表
 
+[跳跃链表](https://juejin.cn/post/6910476641990868999)
+
+[优缺点](https://blog.csdn.net/gg1229505432/article/details/121865338)
+
+skiplist与平衡树、哈希表的比较
+skiplist和各种平衡树（如AVL、红黑树等）的元素是有序排列的，而哈希表不是有序的。因此，在哈希表上只能做单个key的查找，不适宜做范围查找。所谓范围查找，指的是查找那些大小在指定的两个值之间的所有节点。
+
+在做范围查找的时候，平衡树比skiplist操作要复杂。在平衡树上，我们找到指定范围的小值之后，还需要以中序遍历的顺序继续寻找其它不超过大值的节点。如果不对平衡树进行一定的改造，这里的中序遍历并不容易实现。而在skiplist上进行范围查找就非常简单，只需要在找到小值之后，对第1层链表进行若干步的遍历就可以实现。
+
+平衡树的插入和删除操作可能引发子树的调整，逻辑复杂，而skiplist的插入和删除只需要修改相邻节点的指针，操作简单又快速。
+
+从内存占用上来说，skiplist比平衡树更灵活一些。一般来说，平衡树每个节点包含2个指针（分别指向左右子树），而skiplist每个节点包含的指针数目平均为1/(1-p)，具体取决于参数p的大小。如果像Redis里的实现一样，取p=1/4，那么平均每个节点包含1.33个指针，比平衡树更有优势。
+
+查找单个key，skiplist和平衡树的时间复杂度都为O(log n)，大体相当；而哈希表在保持较低的哈希值冲突概率的前提下，查找时间复杂度接近O(1)，性能更高一些。所以我们平常使用的各种Map或dictionary结构，大都是基于哈希表实现的。
+
+从算法实现难度上来比较，skiplist比平衡树要简单得多
+
+```
+There are a few reasons:
+
+\1) They are not very memory intensive. It's up to you basically. Changing parameters about the probability of a node to have a given number of levels will make then less memory intensive than btrees.
+
+\2) A sorted set is often target of many ZRANGE or ZREVRANGE operations, that is, traversing the skip list as a linked list. With this operation the cache locality of skip lists is at least as good as with other kind of balanced trees.
+
+\3) They are simpler to implement, debug, and so forth. For instance thanks to the skip list simplicity I received a patch (already in Redis master) with augmented skip lists implementing ZRANK in O(log(N)). It required little changes to the code.
+
+```
 
